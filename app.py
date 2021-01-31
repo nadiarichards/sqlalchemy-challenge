@@ -27,15 +27,12 @@ session=Session(engine)
 
 joined_by_station=session.query(Measurement, Station).filter(Measurement.station == Station.station)
 for record in joined_by_station:
-    (Measurement, Station) = record
-    print (Measurement.station)
-    print (Station.station)
+    (measurement, station) = record
 session.close()
 #################################################
 # Flask Setup
 #################################################
 app = Flask(__name__)
-
 
 #################################################
 # Flask Routes
@@ -46,7 +43,13 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
+        f"/api/v1.0/measurements<br/>"
+        f"/api/v1.0/stations"
     )
+session = Session(engine)
+for row in session.query(Measurement).limit(10).all():
+    print(row.station, row.date)
+session.close()
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
@@ -54,18 +57,22 @@ def precipitation():
     session = Session(engine)
     """Return a list of all passenger names"""
     # Query all passengers
-    results_prcp = session.query(prcp.Measurement).all()
-    results_date = session.query(date.Measurement).all()
-
+    #results_prcp = session.query(Measurement.prcp).all()
+    #results_date = session.query(Measurement.date).all()
+    results = session.query(Measurement.date, Measurement.prcp).all()
     # Convert list of tuples into normal list
-    all_prcp = {results_date : results_prcp}
+    #all_prcp = {results_date : results_prcp}
 
     session.close()
 
+    all_prcp = []
+    for date, prcp in results:
+        prcp_dict = {}
+        prcp_dict["date"] = date
+        prcp_dict["prcp"] = precipitation
+        all_prsp.append(prcp_dict)
+
     return jsonify(all_prcp)
-
-
-
 
 
 if __name__ == '__main__':
