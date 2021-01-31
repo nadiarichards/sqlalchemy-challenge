@@ -22,6 +22,8 @@ Base.prepare(engine, reflect=True)
 Measurement=Base.classes.measurement
 Station=Base.classes.station
 
+session=Session(engine)
+
 joined_by_station=session.query(Measurement, Station).filter(Measurement.station == Station.station)
 for record in joined_by_station:
     (Measurement, Station) = record
@@ -43,9 +45,7 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/stations<br/>"
     )
-
 
 
 
