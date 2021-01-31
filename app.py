@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -29,7 +30,7 @@ for record in joined_by_station:
     (Measurement, Station) = record
     print (Measurement.station)
     print (Station.station)
-
+session.close()
 #################################################
 # Flask Setup
 #################################################
@@ -46,6 +47,24 @@ def welcome():
     return (
         f"Available Routes:<br/>"
     )
+
+@app.route("/api/v1.0/precipitation")
+def precipitation():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+    """Return a list of all passenger names"""
+    # Query all passengers
+    results_prcp = session.query(prcp.Measurement).all()
+    results_date = session.query(date.Measurement).all()
+
+    # Convert list of tuples into normal list
+    all_prcp = {results_date : results_prcp}
+
+    session.close()
+
+    return jsonify(all_prcp)
+
+
 
 
 
