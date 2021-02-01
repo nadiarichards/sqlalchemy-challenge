@@ -43,8 +43,8 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/measurements<br/>"
-        f"/api/v1.0/stations"
+        f"/api/v1.0/Measurements<br/>"
+        f"/api/v1.0/Stations"
     )
 session = Session(engine)
 for row in session.query(Measurement).limit(10).all():
@@ -59,20 +59,22 @@ def precipitation():
     # Query all passengers
     #results_prcp = session.query(Measurement.prcp).all()
     #results_date = session.query(Measurement.date).all()
-    results = session.query(Measurement.date, Measurement.prcp).all()
+    query = session.query(Measurement.date, Measurement.prcp).all()
+    for row in query:
+        print(row._asdict())
     # Convert list of tuples into normal list
     #all_prcp = {results_date : results_prcp}
 
     session.close()
 
-    all_prcp = []
-    for date, prcp in results:
-        prcp_dict = {}
-        prcp_dict["date"] = date
-        prcp_dict["prcp"] = precipitation
-        all_prcp.append(prcp_dict)
+    # all_prcp = []
+    # for date, prcp in results:
+    #     prcp_dict = {}
+    #     prcp_dict["date"] = date
+    #     prcp_dict["prcp"] = precipitation
+    #     all_prcp.append(prcp_dict)
 
-    return jsonify(all_prcp)
+    return jsonify(query)
 
 
 if __name__ == '__main__':
