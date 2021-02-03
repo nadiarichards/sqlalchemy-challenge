@@ -42,14 +42,12 @@ app = Flask(__name__)
 def welcome():
     """List all available api routes."""
     return (
-        f"Available Routes:<br/>"
-        f"/api/v1.0/Measurements<br/>"
-        f"/api/v1.0/Stations"
+        f"Available Routes:"
     )
-session = Session(engine)
-for row in session.query(Measurement).limit(10).all():
-    print(row.station, row.date)
-session.close()
+# session = Session(engine)
+# for row in session.query(Measurement).limit(10).all():
+#     print(row.station, row.date)
+# session.close()
 
 @app.route("/api/v1.0/precipitation")
 def precipitation():
@@ -60,8 +58,6 @@ def precipitation():
     #results_prcp = session.query(Measurement.prcp).all()
     #results_date = session.query(Measurement.date).all()
     query = session.query(Measurement.date, Measurement.prcp).all()
-    for row in query:
-        print(row._asdict())
     # Convert list of tuples into normal list
     #all_prcp = {results_date : results_prcp}
 
