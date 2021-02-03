@@ -43,6 +43,7 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:"
+        f"/api/v1.0/precipitation"
     )
 # session = Session(engine)
 # for row in session.query(Measurement).limit(10).all():
