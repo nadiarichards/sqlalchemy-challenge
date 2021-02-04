@@ -83,9 +83,9 @@ def tobs():
 
     session=Session(engine)
 
-    active_station=session.query(Measurement.station, func.count(Measurement.station)).group_by(
+    most_active_station=session.query(Measurement.station, func.count(Measurement.station)).group_by(
     Measurement.station).order_by(func.count(Measurement.station).desc()).first()
-    print (active_station)
+    return (most_active_station)
 
     joined_by_station=session.query(Measurement, Station).filter(Measurement.station == Station.station)
     for record in joined_by_station:
