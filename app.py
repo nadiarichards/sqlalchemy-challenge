@@ -23,12 +23,7 @@ Base.prepare(engine, reflect=True)
 Measurement=Base.classes.measurement
 Station=Base.classes.station
 
-session=Session(engine)
 
-joined_by_station=session.query(Measurement, Station).filter(Measurement.station == Station.station)
-for record in joined_by_station:
-    (measurement, station) = record
-session.close()
 #################################################
 # Flask Setup
 #################################################
@@ -43,7 +38,8 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:"
-        f"/api/v1.0/precipitation"
+        f"/api/v1.0/precipitation",
+        f"/api/v1.0/stations"
     )
 # session = Session(engine)
 # for row in session.query(Measurement).limit(10).all():
@@ -81,6 +77,24 @@ def stations():
     session.close()
     return jsonify(query)
 
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+
+    session=Session(engine)
+
+    active_station=session.query(Measurement.station, func.count(Measurement.station)).group_by(
+    Measurement.station).order_by(func.count(Measurement.station).desc()).first()
+    print (active_station)
+
+    joined_by_station=session.query(Measurement, Station).filter(Measurement.station == Station.station)
+    for record in joined_by_station:
+        (measurement, station) = record
+
+    # Create our session (link) from Python to the DB
+    query = session.query(Measurement.station).all()
+    session.close()
+    return jsonify(query)
 
 if __name__ == '__main__':
     app.run(debug=True)
