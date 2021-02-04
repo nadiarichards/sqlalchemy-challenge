@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import datetime as dt
 
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -88,11 +89,12 @@ def tobs():
     Measurement.station=='USC00519281').all()
 
 # Return a JSON list of temperature observations (TOBS) for the previous year.
-
-
+    latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
+    temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
 
     session.close()
-    return jsonify(most_active_station)
+    return jsonify(most_active_station, temp_last_year)
 
 
 @app.route("/api/v1.0/,<start>")
