@@ -73,6 +73,14 @@ def precipitation():
 
     return jsonify(query)
 
+@app.route("/api/v1.0/stations")
+def stations():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
+    query = session.query(Measurement.station).all()
+    session.close()
+    return jsonify(query)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
