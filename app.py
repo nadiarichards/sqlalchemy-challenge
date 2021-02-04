@@ -84,14 +84,16 @@ def tobs():
     session=Session(engine)
 
 # Query the dates and temperature observations of the most active station for the last year of data.
-# Return a JSON list of temperature observations (TOBS) for the previous year.
 
     session.query(Measurement.station, func.count(Measurement.station)).group_by(
     Measurement.station).order_by(func.count(Measurement.station).desc()).first()
-    return (most_active_station)
 
     most_active_station=session.query(Measurement.tobs, Measurement.date).filter(
     Measurement.station=='USC00519281').all()
+
+# Return a JSON list of temperature observations (TOBS) for the previous year.
+
+    
 
     session.close()
     return jsonify(most_active_station)
