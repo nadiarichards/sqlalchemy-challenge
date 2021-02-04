@@ -50,10 +50,6 @@ def welcome():
 def precipitation():
     # Create our session (link) from Python to the DB
     session = Session(engine)
-    """Return a list of all passenger names"""
-    # Query all passengers
-    #results_prcp = session.query(Measurement.prcp).all()
-    #results_date = session.query(Measurement.date).all()
     query = session.query(Measurement.date, Measurement.prcp).all()
     # Convert list of tuples into normal list
     #all_prcp = {results_date : results_prcp}
@@ -93,7 +89,7 @@ def tobs():
 
 # Return a JSON list of temperature observations (TOBS) for the previous year.
 
-    
+
 
     session.close()
     return jsonify(most_active_station)
