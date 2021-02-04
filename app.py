@@ -35,11 +35,13 @@ app = Flask(__name__)
 
 @app.route("/")
 def welcome():
-    """List all available api routes."""
+# List all available api routes.
     return (
-        f"Available Routes:"
-        f"/api/v1.0/precipitation",
-        f"/api/v1.0/stations"
+        f"Available Routes:<br>"
+        f"/api/v1.0/precipitation<br>"
+        f"/api/v1.0/stations<br>"
+        f"/api/v1.0/tobs<br>"
+        f"/api/v1.0/start/end<br>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -81,34 +83,46 @@ def tobs():
     session.close()
     return jsonify(most_active_station, temp_last_year)
 
+@app.route("/api/v1.0/temp/<start>")
 
-@app.route("/api/v1.0/<start>/<end>")
-def date_range(start=none, end=none):
+
+@app.route("/api/v1.0/temp/<start>/<end>", methods=['GET','POST'])
+# def stats(start=None, end=None):
 
 # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
 # When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date.
 # When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive.
 
-    session=Session(engine)
 
-    def stats(start=None, end=None):
-    """Return TMIN, TAVG, TMAX."""
-    # Select statement
-    sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-    if not end:
-        # calculate TMIN, TAVG, TMAX for dates greater than start
-        results = session.query(*sel).\
-            filter(Measurement.date >= start).all()
-        # Unravel results into a 1D array and convert to a list
-        temps = list(np.ravel(results))
-        return jsonify(temps)
-    # calculate TMIN, TAVG, TMAX with start and stop
-    results = session.query(*sel).\
-        filter(Measurement.date >= start).\
-        filter(Measurement.date <= end).all()
-    # Unravel results into a 1D array and convert to a list
-    temps = list(np.ravel(results))
-    return jsonify(temps=temps)
+    # # Select statement
+    # sel = [func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    # if not end:
+    #     # calculate TMIN, TAVG, TMAX for dates greater than start
+    #     results = session.query(*sel).filter(Measurement.date >= start).all()
+    #     # Unravel results into a 1D array and convert to a list
+    #     temps = list(np.ravel(results))
+    #     return jsonify(temps)
+    # # calculate TMIN, TAVG, TMAX with start and stop
+    # end_results = session.query(*sel).filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+    # # Unravel results into a 1D array and convert to a list
+    # end_temps = list(np.ravel(end_results))
+    # return jsonify(temps=end_temps)
+
+def temperature(start=None, end=None):
+    session=Session(engine)
+    #when given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive'''
+    if end != None:
+        temps = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+    #when given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date
+    else:
+        temps = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+                filter(Measurement.date >= start).all()
+        #convert list of tuples into normal list
+    temps_rav = list(np.ravel(temps))
+    #return json representation of the list
+    session.close()
+    return jsonify(temps)
 
     # session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(
     # Measurement.station=='USC00519281').all()
@@ -125,8 +139,6 @@ def date_range(start=none, end=none):
     #     if search_term == canonicalized:
     #         return jsonify(character)
 
-
-    session.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
