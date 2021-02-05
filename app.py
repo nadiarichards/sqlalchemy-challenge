@@ -86,7 +86,7 @@ def tobs():
 @app.route("/api/v1.0/temp/<start>")
 
 
-@app.route("/api/v1.0/temp/<start>/<end>", methods=['GET','POST'])
+@app.route("/api/v1.0/temp/<start>/<end>")
 # def stats(start=None, end=None):
 
 # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
@@ -110,6 +110,9 @@ def tobs():
 
 def temperature(start=None, end=None):
     session=Session(engine)
+    latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
+    temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
     #when given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive'''
     if end != None:
         temps = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
@@ -123,6 +126,7 @@ def temperature(start=None, end=None):
     #return json representation of the list
     session.close()
     return jsonify(temps)
+
 
     # session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(
     # Measurement.station=='USC00519281').all()
