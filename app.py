@@ -134,27 +134,31 @@ def temperature(start=None, end=None):
 
     # Start Day Route
 @app.route("/api/v1.0/<start>")
-session=Session(engine)
+
 def start_day(start):
-        start_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-                filter(Measurement.date >= start).\
-                group_by(Measurement.date).all()
+    session=Session(engine)
+    start_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+            filter(Measurement.date >= start).\
+            group_by(Measurement.date).all()
         # Convert List of Tuples Into Normal List
-        start_day_list = list(start_day)
+    start_day_list = list(start_day)
         # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start Range
-        return jsonify(start_day_list)
+    session.close()
+    return jsonify(start_day_list)
 # Start-End Day Route
 @app.route("/api/v1.0/<start>/<end>")
 def start_end_day(start, end):
-        start_end_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-                filter(Measurement.date >= start).\
-                filter(Measurement.date <= end).\
-                group_by(Measurement.date).all()
+    session=Session(engine)
+    start_end_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start).\
+            filter(Measurement.date <= end).\
+            group_by(Measurement.date).all()
         # Convert List of Tuples Into Normal List
-        start_end_day_list = list(start_end_day)
+    start_end_day_list = list(start_end_day)
         # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start-End Range
-        return jsonify(start_end_day_list)
-session.close()
+    session.close()
+    return jsonify(start_end_day_list)
+
 
     # session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(
     # Measurement.station=='USC00519281').all()
