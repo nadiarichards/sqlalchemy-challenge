@@ -111,15 +111,15 @@ def tobs():
 def temperature(start=None, end=None):
     session=Session(engine)
     latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
-    last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
-    temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
+    # last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
+    # temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
     #when given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive'''
     if end != None:
-        temps = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        temps = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
                 filter(Measurement.date >= start).filter(Measurement.date <= end).all()
     #when given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date
     else:
-        temps = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        temps = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
                 filter(Measurement.date >= start).all()
         #convert list of tuples into normal list
     temps_rav = list(np.ravel(temps))
