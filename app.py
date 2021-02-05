@@ -83,6 +83,12 @@ def tobs():
     session.close()
     return jsonify(most_active_station, temp_last_year)
 
+def to_date(date_string): 
+    try:
+        return datetime.datetime.strptime(dateString, "%Y-%m-%d").date()
+    except ValueError:
+        raise ValueError('{} is not valid date in the format YYYY-MM-DD'.format(date_string))
+
 @app.route("/api/v1.0/temp/<start>")
 
 
