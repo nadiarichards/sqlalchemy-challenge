@@ -111,7 +111,7 @@ def to_date(date_string):
     # # Unravel results into a 1D array and convert to a list
     # end_temps = list(np.ravel(end_results))
     # return jsonify(temps=end_temps)
-    
+
 @app.route("/api/v1.0/temp/<start>/<end>")
 def temperature(start=None, end=None):
     session=Session(engine)
@@ -134,6 +134,7 @@ def temperature(start=None, end=None):
 
     # Start Day Route
 @app.route("/api/v1.0/<start>")
+session=Session(engine)
 def start_day(start):
         start_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
                 filter(Measurement.date >= start).\
@@ -153,7 +154,7 @@ def start_end_day(start, end):
         start_end_day_list = list(start_end_day)
         # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start-End Range
         return jsonify(start_end_day_list)
-
+session.close()
 
     # session.query(func.min(Measurement.tobs), func.max(Measurement.tobs), func.avg(Measurement.tobs)).filter(
     # Measurement.station=='USC00519281').all()
