@@ -71,7 +71,6 @@ def tobs():
 
     session.query(Measurement.station, func.count(Measurement.station)).group_by(
     Measurement.station).order_by(func.count(Measurement.station).desc()).first()
-
     most_active_station=session.query(Measurement.tobs, Measurement.date).filter(
     Measurement.station=='USC00519281').all()
 
@@ -79,17 +78,17 @@ def tobs():
     latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
     last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
     temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
-
     session.close()
     return jsonify(most_active_station, temp_last_year)
 
-def to_date(date_string): 
-    try:
-        return datetime.datetime.strptime(dateString, "%Y-%m-%d").date()
-    except ValueError:
-        raise ValueError('{} is not valid date in the format YYYY-MM-DD'.format(date_string))
+# @app.route("/api/v1.0/temp/<date_string>")
+# def to_date(date_string): 
+#     try:
+#         return dt.strptime(dateString, "%Y-%m-%d").date()
+#     except ValueError:
+#         raise ValueError('{} is not valid date in the format YYYY-MM-DD'.format(date_string))
 
-@app.route("/api/v1.0/temp/<start>")
+# @app.route("/api/v1.0/temp/<start>")
 
 # def stats(start=None, end=None):
 
@@ -112,49 +111,47 @@ def to_date(date_string):
     # end_temps = list(np.ravel(end_results))
     # return jsonify(temps=end_temps)
 
-@app.route("/api/v1.0/temp/<start>/<end>")
-def temperature(start=None, end=None):
-    session=Session(engine)
-    latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
-    # last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
-    # temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
-    #when given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive'''
-    if end != None:
-        temps = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-                filter(Measurement.date >= start).filter(Measurement.date <= end).all()
-    #when given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date
-    else:
-        temps = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-                filter(Measurement.date >= start).all()
-        #convert list of tuples into normal list
-    temps_rav = list(np.ravel(temps))
-    #return json representation of the list
-    session.close()
-    return jsonify(temps)
+# @app.route("/api/v1.0/temp/<start>/<end>")
+# def temperature(start=None, end=None):
+#     session=Session(engine)
+#     latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+#     # last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
+#     # temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
+#     #when given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates between the start and end date inclusive'''
+#     if end != None:
+#         temps = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+#                 filter(Measurement.date >= start).filter(Measurement.date <= end).all()
+#     #when given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and equal to the start date
+#     else:
+#         temps = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+#                 filter(Measurement.date >= start).all()
+#         #convert list of tuples into normal list
+#     temps_rav = list(np.ravel(temps))
+#     #return json representation of the list
+#     session.close()
+#     return jsonify(temps)
 
-    # Start Day Route
+
 @app.route("/api/v1.0/<start>")
-
-def start_day(start):
+def start(start):
     session=Session(engine)
-    start_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-            filter(Measurement.date >= start).\
-            group_by(Measurement.date).all()
+    sel =[Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    after_start = session.query(*sel).filter(Measurement.date >= start).group_by(Measurement.date).all()
         # Convert List of Tuples Into Normal List
-    start_day_list = list(start_day)
+    start_list = list(after_start)
         # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start Range
     session.close()
-    return jsonify(start_day_list)
+    return jsonify(start_list)
+
 # Start-End Day Route
 @app.route("/api/v1.0/<start>/<end>")
-def start_end_day(start, end):
+def start_end(start, end):
     session=Session(engine)
-    start_end_day = session.query(Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-        filter(Measurement.date >= start).\
-            filter(Measurement.date <= end).\
-            group_by(Measurement.date).all()
+    sel =[Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    start_and_end = session.query(*sel).filter(Measurement.date >= start).\
+            filter(Measurement.date <= end).group_by(Measurement.date).all()
         # Convert List of Tuples Into Normal List
-    start_end_day_list = list(start_end_day)
+    start_end_day_list = list(start_and_end)
         # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start-End Range
     session.close()
     return jsonify(start_end_day_list)
