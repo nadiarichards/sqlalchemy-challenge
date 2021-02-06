@@ -77,31 +77,17 @@ def tobs():
     session.close()
     return jsonify(most_active_station, temp_last_year)
 
-@app.route("/api/v1.0/dates")
-    session=Session(engine)
-    all_the_dates=[]
-    for date in session.query(Measurement, Measurement.date).all():
-        all_the_dates.append(date)
-    return jsonify(all_the_dates)
-    session.close()
-
 
 @app.route("/api/v1.0/<start>")
 def start(start):
     session=Session(engine)
-
-    # session.query(Measurement).filter(start.in_([Measurement.date for date in all_the_dates])).all()
-
-    if start not in all_the_dates:
-        print("Pick a date after 2017-08-23")
-    else:
-        sel =[Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-        after_start = session.query(*sel).filter(Measurement.date >= start).group_by(Measurement.date).all()
-        # Convert List of Tuples Into Normal List
-        start_list = list(after_start)
-        # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start Range
-        session.close()
-        return jsonify(start_list)
+    sel =[Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    after_start = session.query(*sel).filter(Measurement.date >= start).group_by(Measurement.date).all()
+    # Convert List of Tuples Into Normal List
+    start_list = list(after_start)
+    # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start Range
+    session.close()
+    return jsonify(start_list)
 
 
 @app.route("/api/v1.0/<start>/<end>")
