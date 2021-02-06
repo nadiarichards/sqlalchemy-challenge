@@ -41,8 +41,8 @@ def welcome():
         f"/api/v1.0/precipitation<br>"
         f"/api/v1.0/stations<br>"
         f"/api/v1.0/tobs<br>"
-        f"/api/v1.0/<start>"
-        f"/api/v1.0/<start>/<end><br>"
+        f"/api/v1.0/2017-08-23<br>"
+        f"/api/v1.0/2016-06-20/2016-06-30<br>"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -76,7 +76,6 @@ def tobs():
     temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
     session.close()
     return jsonify(most_active_station, temp_last_year)
-
 
 @app.route("/api/v1.0/<start>")
 def start(start):
