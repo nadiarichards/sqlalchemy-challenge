@@ -86,26 +86,23 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def start(start):
     session=Session(engine)
-    sel =[Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
-    after_start = session.query(*sel).filter(Measurement.date >= start).group_by(Measurement.date).all()
-    # Convert List of Tuples Into Normal List
-    start_list = list(after_start)
+    latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    sel =[func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    after_start = session.query(*sel).filter(Measurement.date >= start).all()
     # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start Range
     session.close()
-    return jsonify(start_list)
+    return jsonify(after_start)
 
 
 @app.route("/api/v1.0/<start>/<end>")
 def start_end(start, end):
     session=Session(engine)
-    sel =[Measurement.date, func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
+    sel =[func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)]
     start_and_end = session.query(*sel).filter(Measurement.date >= start).\
-            filter(Measurement.date <= end).group_by(Measurement.date).all()
-        # Convert List of Tuples Into Normal List
-    start_end_day_list = list(start_and_end)
+            filter(Measurement.date <= end).all()
         # Return JSON List of Min Temp, Avg Temp and Max Temp for a Given Start-End Range
     session.close()
-    return jsonify(start_end_day_list)
+    return jsonify(start_and_end)
 
 
 if __name__ == '__main__':
