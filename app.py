@@ -49,16 +49,23 @@ def welcome():
 def precipitation():
 
     session = Session(engine)
-    query = session.query(Measurement.date, Measurement.prcp).all()
+    latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
+    results=session.query(Measurement.date, Measurement.prcp).filter(Measurement.date >=last_year).all()
     session.close()
-    return jsonify(query)
+    return jsonify(results)
 
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
-    query = session.query(Measurement.station).all()
+    
+    for station in session.query(Measurement.station):
+        stations=[]
+        if station not in stations:
+            stations.append(station)
+    # query = session.query(Measurement.station).all()
     session.close()
-    return jsonify(query)
+    return jsonify(stations)
 
 
 @app.route("/api/v1.0/tobs")
