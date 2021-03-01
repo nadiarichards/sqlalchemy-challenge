@@ -58,14 +58,10 @@ def precipitation():
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
-    
-    for station in session.query(Measurement.station):
-        stations=[]
-        if station not in stations:
-            stations.append(station)
-    # query = session.query(Measurement.station).all()
+    query = session.query(Measurement.station).group_by(
+    Measurement.station).all()
     session.close()
-    return jsonify(stations)
+    return jsonify(query)
 
 
 @app.route("/api/v1.0/tobs")
@@ -75,14 +71,17 @@ def tobs():
 # Query the dates and temperature observations of the most active station for the last year of data.
     session.query(Measurement.station, func.count(Measurement.station)).group_by(
     Measurement.station).order_by(func.count(Measurement.station).desc()).first()
-    most_active_station=session.query(Measurement.tobs, Measurement.date).filter(
-    Measurement.station=='USC00519281').all()
-# Return a JSON list of temperature observations (TOBS) for the previous year.
     latest_date=session.query(Measurement.date).order_by(Measurement.date.desc()).first()
     last_year=dt.date(2017,8,23)-dt.timedelta(days=365)
-    temp_last_year=session.query(Measurement.tobs).filter(Measurement.date >=last_year).all()
+    most_active_station=session.query(Measurement.tobs, Measurement.date).filter(
+    Measurement.station=='USC00519281').filter(Measurement.date >=last_year).all()
+# Return a JSON list of temperature observations (TOBS) for the previous year.
+    previous_year=dt.date(2017,8,23)-dt.timedelta(days=365*2)
+    most_active_station_previous_year=session.query(Measurement.tobs, Measurement.date).filter(
+    Measurement.station=='USC00519281').filter(Measurement.date >=previous_year).all()
     session.close()
-    return jsonify(most_active_station, temp_last_year)
+    return jsonify(most_active_station_previous_year)
+
 
 @app.route("/api/v1.0/<start>")
 def start(start):
